@@ -1,18 +1,14 @@
 /**
  * 检测响应内容是否触发 acw_sc__v2 校验
- * @param {any} body
- * @returns {boolean}
  */
-function isAcwChallenge(body: any) {
+function isAcwChallenge(body: unknown): boolean {
   return typeof body === "string" && body.includes("acw_sc__v2");
 }
 
 /**
  * 从 HTML 中提取 arg1 并计算 acw_sc__v2
- * @param {string} html
- * @returns {string|null}
  */
-function calcAcwScV2FromHtml(html: string) {
+function calcAcwScV2FromHtml(html: string): string | null {
   if (!html || typeof html !== "string") return null;
   const arg1Match = html.match(/arg1='(.*?)'/);
   if (!arg1Match || !arg1Match[1]) return null;
@@ -21,11 +17,8 @@ function calcAcwScV2FromHtml(html: string) {
 
 /**
  * 将 acw_sc__v2 写入 cookie 字符串
- * @param {string} cookieString
- * @param {string} acwScV2
- * @returns {string}
  */
-function upsertAcwScCookie(cookieString: string, acwScV2: string) {
+function upsertAcwScCookie(cookieString: string, acwScV2: string): string {
   const current = cookieString || "";
   if (!acwScV2) return current;
 
@@ -40,10 +33,8 @@ function upsertAcwScCookie(cookieString: string, acwScV2: string) {
 
 /**
  * acw_sc__v2 cookie 生成函数
- * @param {string} arg1
- * @returns {string}
  */
-function acw_sc_v2_simple(arg1: string) {
+function acw_sc_v2_simple(arg1: string): string {
   const posList = [
     15, 35, 29, 24, 33, 16, 1, 38, 10, 9, 19, 31, 40, 27, 22, 23, 25, 13, 6, 11,
     39, 18, 20, 8, 14, 21, 32, 26, 2, 30, 7, 4, 17, 5, 3, 28, 34, 37, 12, 36,
@@ -74,8 +65,8 @@ function acw_sc_v2_simple(arg1: string) {
   return result;
 }
 
-function arrayFill(startIndex: number, length: number, value: any) {
-  const array = [];
+function arrayFill(startIndex: number, length: number, value: string): string[] {
+  const array: string[] = [];
   for (let i = 0; i < length; i++) array[startIndex + i] = value;
   return array;
 }

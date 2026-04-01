@@ -1,9 +1,10 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import {
   isAcwChallenge,
   calcAcwScV2FromHtml,
   upsertAcwScCookie,
 } from "./anti_acw_sc__v2.js";
+import type { LanzouClient } from "../types.js";
 
 const UserAgent =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36";
@@ -11,7 +12,7 @@ const UserAgent =
 /**
  * 创建带有 acw_sc__v2 自动处理的 HTTP 客户端
  */
-function createLanzouClient() {
+function createLanzouClient(): LanzouClient {
   let globalCookies = "";
 
   const instance = axios.create({
@@ -38,41 +39,39 @@ function createLanzouClient() {
 
   /**
    * 从包含 arg1 的 HTML 里计算 acw_sc__v2 并写入全局 cookie
-   * @param {string} html
    */
-  function applyAcwCookieFromHtml(html: string) {
+  function applyAcwCookieFromHtml(html: string): boolean {
     try {
       const v = calcAcwScV2FromHtml(html);
       if (!v) return false;
       globalCookies = upsertAcwScCookie(globalCookies, v);
       return true;
-    } catch (err: any) {
-      console.error("处理 acw_sc__v2 失败:", err.message);
+    } catch (err: unknown) {
+      console.error("处理 acw_sc__v2 失败:", err instanceof Error ? err.message : err);
       return false;
     }
   }
 
   /**
    * 检查响应是否需要 acw_sc__v2 验证，如需要则自动处理
-   * @param {any} data - 响应数据
-   * @returns {boolean} - 是否需要重试请求
+   * @returns 是否需要重试请求
    */
-  function handleAcwChallenge(data: any) {
+  function handleAcwChallenge(data: unknown): boolean {
     const content = Buffer.isBuffer(data) ? data.toString("utf-8") : data;
     if (isAcwChallenge(content)) {
       console.log("检测到 acw_sc__v2 验证，正在处理...");
-      return applyAcwCookieFromHtml(content);
+      return applyAcwCookieFromHtml(content as string);
     }
     return false;
   }
 
   /**
    * 带有 acw_sc__v2 自动重试的 GET 请求
-   * @param {string} url
-   * @param {object} config
-   * @returns {Promise}
    */
-  async function getWithAcwRetry(url: string, config = {}): Promise<any> {
+  async function getWithAcwRetry(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse> {
     let response = await instance.get(url, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.get(url, config);
@@ -82,16 +81,12 @@ function createLanzouClient() {
 
   /**
    * 带有 acw_sc__v2 自动重试的 POST 请求
-   * @param {string} url
-   * @param {any} data
-   * @param {object} config
-   * @returns {Promise}
    */
   async function postWithAcwRetry(
     url: string,
-    data: any,
-    config = {},
-  ): Promise<any> {
+    data: unknown,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse> {
     let response = await instance.post(url, data, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.post(url, data, config);
@@ -101,11 +96,11 @@ function createLanzouClient() {
 
   /**
    * 带有 acw_sc__v2 自动重试的 HEAD 请求
-   * @param {string} url
-   * @param {object} config
-   * @returns {Promise}
    */
-  async function headWithAcwRetry(url: string, config = {}): Promise<any> {
+  async function headWithAcwRetry(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse> {
     let response = await instance.head(url, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.head(url, config);
@@ -116,14 +111,14 @@ function createLanzouClient() {
   /**
    * 重置 Cookie
    */
-  function resetCookies() {
+  function resetCookies(): void {
     globalCookies = "";
   }
 
   /**
    * 获取当前 Cookie
    */
-  function getCookies() {
+  function getCookies(): string {
     return globalCookies;
   }
 
@@ -142,7 +137,7 @@ function createLanzouClient() {
 /**
  * 生成随机 IP
  */
-function randIP() {
+function randIP(): string {
   const arr = [
     "218",
     "218",
@@ -184,10 +179,8 @@ function randIP() {
 
 /**
  * 获取请求头
- * @param {string} referer
- * @param {string} host
  */
-function getHeaders(referer: string, host = "") {
+function getHeaders(referer: string, host = ""): Record<string, string> {
   return {
     "User-Agent": UserAgent,
     "X-FORWARDED-FOR": randIP(),
@@ -203,7 +196,7 @@ function getHeaders(referer: string, host = "") {
 /**
  * 获取下载用请求头
  */
-function getDownloadHeaders() {
+function getDownloadHeaders(): Record<string, string> {
   return {
     "User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
