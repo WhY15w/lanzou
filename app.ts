@@ -1,10 +1,10 @@
-const express = require("express");
-const rateLimit = require("express-rate-limit");
-const morgan = require("morgan");
-const cors = require("cors");
-const dayjs = require("dayjs");
-const config = require("./config/config");
-const lanzouRouter = require("./routes/lanzou");
+import express from "express";
+import rateLimit from "express-rate-limit";
+import morgan from "morgan";
+import cors from "cors";
+import dayjs from "dayjs";
+import config from "./config/config.js";
+import lanzouRouter from "./routes/lanzou.js";
 
 const app = express();
 
@@ -31,18 +31,23 @@ app.use(rateLimit(config.rateLimit));
 // routes
 app.use("/lanzou", lanzouRouter);
 
-app.use((err, req, res, next) => {
-  console.error(
-    `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] 🔥 [Unhandled Error]`,
-    err,
-  );
-  res.status(500).json({ error: "Unexpected server error" });
-});
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    console.error(
+      `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] 🔥 [Unhandled Error]`,
+      err,
+    );
+    res.status(500).json({ error: "Unexpected server error" });
+  },
+);
 
 app.listen(config.PORT, () => {
   console.log(
     `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Server running at http://127.0.0.1:${config.PORT}`,
   );
 });
-
-module.exports = app;

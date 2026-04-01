@@ -3,7 +3,7 @@
  * @param {any} body
  * @returns {boolean}
  */
-function isAcwChallenge(body) {
+function isAcwChallenge(body: any) {
   return typeof body === "string" && body.includes("acw_sc__v2");
 }
 
@@ -12,7 +12,7 @@ function isAcwChallenge(body) {
  * @param {string} html
  * @returns {string|null}
  */
-function calcAcwScV2FromHtml(html) {
+function calcAcwScV2FromHtml(html: string) {
   if (!html || typeof html !== "string") return null;
   const arg1Match = html.match(/arg1='(.*?)'/);
   if (!arg1Match || !arg1Match[1]) return null;
@@ -25,7 +25,7 @@ function calcAcwScV2FromHtml(html) {
  * @param {string} acwScV2
  * @returns {string}
  */
-function upsertAcwScCookie(cookieString, acwScV2) {
+function upsertAcwScCookie(cookieString: string, acwScV2: string) {
   const current = cookieString || "";
   if (!acwScV2) return current;
 
@@ -43,7 +43,7 @@ function upsertAcwScCookie(cookieString, acwScV2) {
  * @param {string} arg1
  * @returns {string}
  */
-function acw_sc_v2_simple(arg1) {
+function acw_sc_v2_simple(arg1: string) {
   const posList = [
     15, 35, 29, 24, 33, 16, 1, 38, 10, 9, 19, 31, 40, 27, 22, 23, 25, 13, 6, 11,
     39, 18, 20, 8, 14, 21, 32, 26, 2, 30, 7, 4, 17, 5, 3, 28, 34, 37, 12, 36,
@@ -74,13 +74,13 @@ function acw_sc_v2_simple(arg1) {
   return result;
 }
 
-function arrayFill(startIndex, length, value) {
+function arrayFill(startIndex: number, length: number, value: any) {
   const array = [];
   for (let i = 0; i < length; i++) array[startIndex + i] = value;
   return array;
 }
 
-module.exports = {
+export {
   isAcwChallenge,
   calcAcwScV2FromHtml,
   upsertAcwScCookie,

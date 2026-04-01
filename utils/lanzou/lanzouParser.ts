@@ -1,10 +1,15 @@
-const { JSDOM } = require("jsdom");
-const { createLanzouClient, getHeaders } = require("./lanzouHttpClient");
+import { JSDOM } from "jsdom";
+import { createLanzouClient, getHeaders } from "./lanzouHttpClient.js";
 
 /**
  * 解析蓝奏云分享链接
  */
-async function parseLanzouUrl(params) {
+async function parseLanzouUrl(params: {
+  url: string;
+  pwd?: string;
+  type?: string;
+  n?: string;
+}) {
   const { url, pwd, type, n: rename } = params;
   if (!url) return { code: 1, msg: "请输入URL" };
   if (!/lanzou[\w]*\.com\/[a-zA-Z0-9]/.test(url))
@@ -80,8 +85,8 @@ async function parseLanzouUrl(params) {
         return await handleFinalUrl(client, postResult, {
           fileName,
           fileSize,
-          rename,
-          type,
+          rename: rename || "",
+          type: type || "json",
         });
       }
 
@@ -121,10 +126,10 @@ async function parseLanzouUrl(params) {
       return await handleFinalUrl(client, postResult, {
         fileName,
         fileSize,
-        rename,
-        type,
+        rename: rename || "",
+        type: type || "json",
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log("解析失败:", err.message);
       lastError = {
         code: 1,
@@ -140,12 +145,12 @@ async function parseLanzouUrl(params) {
 /**
  * 获取初始 Cookie
  */
-async function getInitialCookies(client, baseUrl) {
+async function getInitialCookies(client: any, baseUrl: string) {
   try {
     await client.instance.get(baseUrl, {
       headers: getHeaders(baseUrl),
     });
-  } catch (err) {
+  } catch (err: any) {
     console.warn("获取初始cookie失败:", err.message);
   }
 }
@@ -153,7 +158,12 @@ async function getInitialCookies(client, baseUrl) {
 /**
  * 获取 ajaxm 结果（自动处理 acw_sc__v2）
  */
-async function getAjaxmResult(client, baseUrl, fileId, payload) {
+async function getAjaxmResult(
+  client: any,
+  baseUrl: string,
+  fileId: string,
+  payload: any,
+) {
   const postUrl = `${baseUrl}/ajaxm.php?file=${fileId}`;
   const res = await client.postWithAcwRetry(
     postUrl,
@@ -167,9 +177,14 @@ async function getAjaxmResult(client, baseUrl, fileId, payload) {
  * 处理最终直链
  */
 async function handleFinalUrl(
-  client,
-  data,
-  { fileName, fileSize, rename, type },
+  client: any,
+  data: any,
+  {
+    fileName,
+    fileSize,
+    rename,
+    type,
+  }: { fileName: string; fileSize: string; rename: string; type: string },
 ) {
   const downUrl1 = `${data.dom}/file/${data.url}`;
   const finalUrl = await resolveFinalUrl(client, downUrl1);
@@ -186,15 +201,16 @@ async function handleFinalUrl(
 /**
  * 通过 HEAD 请求解析跳转后的直链（自动处理 acw_sc__v2）
  */
-async function resolveFinalUrl(client, url) {
+async function resolveFinalUrl(client: any, url: string | URL) {
   try {
+    const urlStr = url.toString();
     const res = await client.headWithAcwRetry(url, {
-      headers: getHeaders(url, new URL(url).hostname),
+      headers: getHeaders(urlStr, new URL(urlStr).hostname),
       maxRedirects: 0,
-      validateStatus: (s) => s >= 200 && s < 400,
+      validateStatus: (s: number) => s >= 200 && s < 400,
     });
     return res.headers.location || url;
-  } catch (err) {
+  } catch (err: any) {
     if (err.response && err.response.status >= 300 && err.response.status < 400)
       return err.response.headers.location || url;
     console.error("解析最终URL失败:", err.message);
@@ -202,7 +218,7 @@ async function resolveFinalUrl(client, url) {
   }
 }
 
-function extractFileName(document) {
+function extractFileName(document: Document) {
   return (
     document.querySelector(".n_box_3fn")?.textContent?.trim() ||
     document.querySelector(".b span")?.textContent?.trim() ||
@@ -211,7 +227,7 @@ function extractFileName(document) {
   );
 }
 
-function extractFileSize(document) {
+function extractFileSize(document: Document) {
   return (
     document
       .querySelector(".n_filesize")
@@ -222,9 +238,9 @@ function extractFileSize(document) {
   );
 }
 
-function matchOne(text, regex) {
+function matchOne(text: string, regex: RegExp) {
   const m = text.match(regex);
   return m ? m[1] : null;
 }
 
-module.exports = { parseLanzouUrl };
+export { parseLanzouUrl };

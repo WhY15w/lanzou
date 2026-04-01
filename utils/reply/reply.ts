@@ -1,0 +1,43 @@
+/**
+ *
+ * @param {*} code 响应码
+ * @param {*} msg 响应消息
+ * @param {*} data 相应数据
+ * @returns json
+ */
+
+const reply = (code: number, msg: string, data?: any) => {
+  return {
+    code: code,
+    msg: msg,
+    data: data,
+  };
+};
+
+// 成功的响应
+export const success = (data: any, msg = "操作成功") => reply(0, msg, data);
+
+// 失败的响应
+export const fail = (msg = "操作失败", data = null) => reply(500, msg, data);
+
+// 参数错误
+export const badRequest = (msg = "请求参数错误", data = null) =>
+  reply(400, msg, data);
+
+// 未授权
+export const unauthorized = (msg = "未授权", data = null) =>
+  reply(401, msg, data);
+
+// 禁止访问
+export const forbidden = (msg = "禁止访问", data = null) =>
+  reply(403, msg, data);
+
+// 资源未找到
+export const notFound = (msg = "资源未找到", data = null) =>
+  reply(404, msg, data);
+
+// 服务器内部错误
+export const internalServerError = (msg = "服务器内部错误", data = null) =>
+  reply(500, msg, data);
+
+export { reply };

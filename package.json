@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "pnpm run build && node dist/app.js",
+    "dev": "ts-node app.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +20,15 @@
     "express-rate-limit": "^8.3.2",
     "jsdom": "^27.4.0",
     "morgan": "^1.10.1"
-  }
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsdom": "^28.0.1",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  },
+  "type": "module"
 }

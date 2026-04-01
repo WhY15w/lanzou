@@ -1,9 +1,9 @@
-const axios = require("axios");
-const {
+import axios from "axios";
+import {
   isAcwChallenge,
   calcAcwScV2FromHtml,
   upsertAcwScCookie,
-} = require("./anti_acw_sc__v2");
+} from "./anti_acw_sc__v2.js";
 
 const UserAgent =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36";
@@ -40,13 +40,13 @@ function createLanzouClient() {
    * 从包含 arg1 的 HTML 里计算 acw_sc__v2 并写入全局 cookie
    * @param {string} html
    */
-  function applyAcwCookieFromHtml(html) {
+  function applyAcwCookieFromHtml(html: string) {
     try {
       const v = calcAcwScV2FromHtml(html);
       if (!v) return false;
       globalCookies = upsertAcwScCookie(globalCookies, v);
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error("处理 acw_sc__v2 失败:", err.message);
       return false;
     }
@@ -57,7 +57,7 @@ function createLanzouClient() {
    * @param {any} data - 响应数据
    * @returns {boolean} - 是否需要重试请求
    */
-  function handleAcwChallenge(data) {
+  function handleAcwChallenge(data: any) {
     const content = Buffer.isBuffer(data) ? data.toString("utf-8") : data;
     if (isAcwChallenge(content)) {
       console.log("检测到 acw_sc__v2 验证，正在处理...");
@@ -72,7 +72,7 @@ function createLanzouClient() {
    * @param {object} config
    * @returns {Promise}
    */
-  async function getWithAcwRetry(url, config = {}) {
+  async function getWithAcwRetry(url: string, config = {}): Promise<any> {
     let response = await instance.get(url, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.get(url, config);
@@ -87,7 +87,11 @@ function createLanzouClient() {
    * @param {object} config
    * @returns {Promise}
    */
-  async function postWithAcwRetry(url, data, config = {}) {
+  async function postWithAcwRetry(
+    url: string,
+    data: any,
+    config = {},
+  ): Promise<any> {
     let response = await instance.post(url, data, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.post(url, data, config);
@@ -101,7 +105,7 @@ function createLanzouClient() {
    * @param {object} config
    * @returns {Promise}
    */
-  async function headWithAcwRetry(url, config = {}) {
+  async function headWithAcwRetry(url: string, config = {}): Promise<any> {
     let response = await instance.head(url, config);
     if (handleAcwChallenge(response.data)) {
       response = await instance.head(url, config);
@@ -183,7 +187,7 @@ function randIP() {
  * @param {string} referer
  * @param {string} host
  */
-function getHeaders(referer, host = "") {
+function getHeaders(referer: string, host = "") {
   return {
     "User-Agent": UserAgent,
     "X-FORWARDED-FOR": randIP(),
@@ -210,10 +214,4 @@ function getDownloadHeaders() {
   };
 }
 
-module.exports = {
-  createLanzouClient,
-  getHeaders,
-  getDownloadHeaders,
-  randIP,
-  UserAgent,
-};
+export { createLanzouClient, getHeaders, getDownloadHeaders };
