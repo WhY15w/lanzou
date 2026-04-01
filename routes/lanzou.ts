@@ -19,12 +19,13 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
       type,
     });
 
-    if (data.code === 0 && "data" in data && data.data?.redirect) {
+    if (data.code === 0 && data.data && "redirect" in data.data) {
       return res.redirect(data.data.redirect);
     }
     res.json(data);
-  } catch (error: any) {
-    res.json(reply(1, "获取信息失败", error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    res.json(reply(1, "获取信息失败", message));
   }
 });
 

@@ -33,7 +33,7 @@ app.use("/lanzou", lanzouRouter);
 
 app.use(
   (
-    err: any,
+    err: unknown,
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,

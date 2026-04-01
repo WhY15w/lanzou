@@ -1,5 +1,10 @@
 import { JSDOM } from "jsdom";
 import { createLanzouClient, getHeaders } from "./lanzouHttpClient.js";
+import type {
+  AjaxmResponse,
+  LanzouClient,
+  ParseResult,
+} from "../types.js";
 
 /**
  * 解析蓝奏云分享链接
@@ -9,7 +14,7 @@ async function parseLanzouUrl(params: {
   pwd?: string;
   type?: string;
   n?: string;
-}) {
+}): Promise<ParseResult> {
   const { url, pwd, type, n: rename } = params;
   if (!url) return { code: 1, msg: "请输入URL" };
   if (!/lanzou[\w]*\.com\/[a-zA-Z0-9]/.test(url))
@@ -25,7 +30,7 @@ async function parseLanzouUrl(params: {
     "https://www.lanzouu.com",
     "https://www.lanzouw.com",
   ];
-  let lastError = null;
+  let lastError: ParseResult | null = null;
 
   for (const baseUrl of baseUrls) {
     try {
@@ -129,12 +134,13 @@ async function parseLanzouUrl(params: {
         rename: rename || "",
         type: type || "json",
       });
-    } catch (err: any) {
-      console.log("解析失败:", err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.log("解析失败:", message);
       lastError = {
         code: 1,
         msg: "解析异常",
-        error: err?.message || err?.toString(),
+        error: message,
       };
       continue;
     }
@@ -145,13 +151,19 @@ async function parseLanzouUrl(params: {
 /**
  * 获取初始 Cookie
  */
-async function getInitialCookies(client: any, baseUrl: string) {
+async function getInitialCookies(
+  client: LanzouClient,
+  baseUrl: string,
+): Promise<void> {
   try {
     await client.instance.get(baseUrl, {
       headers: getHeaders(baseUrl),
     });
-  } catch (err: any) {
-    console.warn("获取初始cookie失败:", err.message);
+  } catch (err: unknown) {
+    console.warn(
+      "获取初始cookie失败:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }
 
@@ -159,33 +171,37 @@ async function getInitialCookies(client: any, baseUrl: string) {
  * 获取 ajaxm 结果（自动处理 acw_sc__v2）
  */
 async function getAjaxmResult(
-  client: any,
+  client: LanzouClient,
   baseUrl: string,
   fileId: string,
-  payload: any,
-) {
+  payload: Record<string, string | number>,
+): Promise<AjaxmResponse> {
   const postUrl = `${baseUrl}/ajaxm.php?file=${fileId}`;
   const res = await client.postWithAcwRetry(
     postUrl,
-    new URLSearchParams(payload),
+    new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(payload).map(([k, v]) => [k, String(v)]),
+      ),
+    ),
     { headers: getHeaders(baseUrl) },
   );
-  return res.data;
+  return res.data as AjaxmResponse;
 }
 
 /**
  * 处理最终直链
  */
 async function handleFinalUrl(
-  client: any,
-  data: any,
+  client: LanzouClient,
+  data: AjaxmResponse,
   {
     fileName,
     fileSize,
     rename,
     type,
   }: { fileName: string; fileSize: string; rename: string; type: string },
-) {
+): Promise<ParseResult> {
   const downUrl1 = `${data.dom}/file/${data.url}`;
   const finalUrl = await resolveFinalUrl(client, downUrl1);
   if (type === "down") {
@@ -201,24 +217,41 @@ async function handleFinalUrl(
 /**
  * 通过 HEAD 请求解析跳转后的直链（自动处理 acw_sc__v2）
  */
-async function resolveFinalUrl(client: any, url: string | URL) {
+async function resolveFinalUrl(
+  client: LanzouClient,
+  url: string,
+): Promise<string> {
   try {
-    const urlStr = url.toString();
     const res = await client.headWithAcwRetry(url, {
-      headers: getHeaders(urlStr, new URL(urlStr).hostname),
+      headers: getHeaders(url, new URL(url).hostname),
       maxRedirects: 0,
       validateStatus: (s: number) => s >= 200 && s < 400,
     });
-    return res.headers.location || url;
-  } catch (err: any) {
-    if (err.response && err.response.status >= 300 && err.response.status < 400)
-      return err.response.headers.location || url;
-    console.error("解析最终URL失败:", err.message);
+    return (res.headers.location as string | undefined) ?? url;
+  } catch (err: unknown) {
+    if (
+      err instanceof Object &&
+      "response" in err &&
+      err.response instanceof Object &&
+      "status" in err.response &&
+      typeof err.response.status === "number" &&
+      err.response.status >= 300 &&
+      err.response.status < 400 &&
+      "headers" in err.response &&
+      err.response.headers instanceof Object &&
+      "location" in err.response.headers
+    ) {
+      return (err.response.headers as Record<string, string>).location ?? url;
+    }
+    console.error(
+      "解析最终URL失败:",
+      err instanceof Error ? err.message : err,
+    );
     return url;
   }
 }
 
-function extractFileName(document: Document) {
+function extractFileName(document: Document): string {
   return (
     document.querySelector(".n_box_3fn")?.textContent?.trim() ||
     document.querySelector(".b span")?.textContent?.trim() ||
@@ -227,7 +260,7 @@ function extractFileName(document: Document) {
   );
 }
 
-function extractFileSize(document: Document) {
+function extractFileSize(document: Document): string {
   return (
     document
       .querySelector(".n_filesize")
@@ -238,7 +271,7 @@ function extractFileSize(document: Document) {
   );
 }
 
-function matchOne(text: string, regex: RegExp) {
+function matchOne(text: string, regex: RegExp): string | null {
   const m = text.match(regex);
   return m ? m[1] : null;
 }
