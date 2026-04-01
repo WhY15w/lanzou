@@ -144,7 +144,7 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 
 | 命令         | 说明                            |
 | ------------ | ------------------------------- |
-| `pnpm dev`   | 使用 ts-node 开发模式运行       |
+| `pnpm dev`   | 使用 tsx 开发模式运行           |
 | `pnpm build` | 将 TypeScript 编译为 JavaScript |
 | `pnpm start` | 编译并运行生产版本              |
 

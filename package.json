@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
-    "dev": "ts-node app.ts",
+    "dev": "tsx app.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -27,7 +27,7 @@
     "@types/jsdom": "^28.0.1",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.5.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   },
   "type": "module"
