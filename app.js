@@ -16,7 +16,7 @@ app.use(
   cors({
     allowedHeaders: "*",
     origin: "*",
-  })
+  }),
 );
 app.use(rateLimit(config.rateLimit));
 

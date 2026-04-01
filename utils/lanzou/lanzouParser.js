@@ -96,7 +96,7 @@ async function parseLanzouUrl(params) {
         const sign = matchOne(cleanCode, /'sign':'(.*?)',/);
         const fileId = matchOne(
           cleanCode,
-          /url\s*:\s*'\/ajaxm\.php\?file=(\d+)(?=[^\/]*')/
+          /url\s*:\s*'\/ajaxm\.php\?file=(\d+)(?=[^\/]*')/,
         );
         if (!sign || !fileId) {
           lastError = { code: 1, msg: "获取文件标识失败" };
@@ -150,7 +150,7 @@ async function parseLanzouUrl(params) {
       const sign = matchOne(iframeResponse.data, /wp_sign = '(.*?)'/);
       const fileId = matchOne(
         iframeResponse.data.replace(`//url : '/ajaxm.php?file=1',//`, ""),
-        /url\s*:\s*'\/ajaxm\.php\?file=(\d+)(?=[^\/]*')/
+        /url\s*:\s*'\/ajaxm\.php\?file=(\d+)(?=[^\/]*')/,
       );
       if (!sign || !fileId) {
         lastError = { code: 1, msg: "获取文件标识失败" };
@@ -331,7 +331,7 @@ function randIP() {
     "211",
   ];
   return `${arr[Math.floor(Math.random() * arr.length)]}.${Math.floor(
-    Math.random() * 255
+    Math.random() * 255,
   )}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
 }
 
