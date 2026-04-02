@@ -47,7 +47,10 @@ function createLanzouClient(): LanzouClient {
       globalCookies = upsertAcwScCookie(globalCookies, v);
       return true;
     } catch (err: unknown) {
-      console.error("处理 acw_sc__v2 失败:", err instanceof Error ? err.message : err);
+      console.error(
+        "处理 acw_sc__v2 失败:",
+        err instanceof Error ? err.message : err,
+      );
       return false;
     }
   }
