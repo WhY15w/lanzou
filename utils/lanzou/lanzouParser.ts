@@ -1,10 +1,6 @@
-import { JSDOM } from "jsdom";
+import * as cheerio from "cheerio";
 import { createLanzouClient, getHeaders } from "./lanzouHttpClient.js";
-import type {
-  AjaxmResponse,
-  LanzouClient,
-  ParseResult,
-} from "../types.js";
+import type { AjaxmResponse, LanzouClient, ParseResult } from "../types.js";
 
 /**
  * 解析蓝奏云分享链接
@@ -53,11 +49,10 @@ async function parseLanzouUrl(params: {
         continue;
       }
 
-      const dom = new JSDOM(firstResponse.data);
-      const document = dom.window.document;
+      const $ = cheerio.load(firstResponse.data);
 
-      let fileName = extractFileName(document);
-      const fileSize = extractFileSize(document);
+      let fileName = extractFileName($);
+      const fileSize = extractFileSize($);
 
       // Step 2: 需要密码
       if (firstResponse.data.includes("function down_p()")) {
@@ -96,7 +91,7 @@ async function parseLanzouUrl(params: {
       }
 
       // Step 3: 无密码
-      const iframeSrc = document.querySelector("iframe")?.src;
+      const iframeSrc = $("iframe").attr("src");
       if (!iframeSrc) {
         lastError = { code: 1, msg: "无法解析下载页面" };
         continue;
@@ -243,31 +238,31 @@ async function resolveFinalUrl(
     ) {
       return (err.response.headers as Record<string, string>).location ?? url;
     }
-    console.error(
-      "解析最终URL失败:",
-      err instanceof Error ? err.message : err,
-    );
+    console.error("解析最终URL失败:", err instanceof Error ? err.message : err);
     return url;
   }
 }
 
-function extractFileName(document: Document): string {
+function extractFileName($: cheerio.CheerioAPI): string {
   return (
-    document.querySelector(".n_box_3fn")?.textContent?.trim() ||
-    document.querySelector(".b span")?.textContent?.trim() ||
-    document.querySelector("title")?.textContent?.replace(" 蓝奏云", "") ||
+    $(".n_box_3fn").text().trim() ||
+    $(".b span").text().trim() ||
+    $("title").text().replace(" 蓝奏云", "") ||
     ""
   );
 }
 
-function extractFileSize(document: Document): string {
+function extractFileSize($: cheerio.CheerioAPI): string {
   return (
-    document
-      .querySelector(".n_filesize")
-      ?.textContent.replace("大小：", "")
-      .trim() ||
-    document.querySelector("span.p7")?.nextSibling?.textContent?.trim() ||
-    ""
+    $(".n_filesize").text().replace("大小：", "").trim() ||
+    $("span.p7")
+      .parent()
+      .contents()
+      .filter(function () {
+        return this.nodeType === 3;
+      })
+      .text()
+      .trim()
   );
 }
 
