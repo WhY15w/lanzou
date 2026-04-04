@@ -65,8 +65,12 @@ function acw_sc_v2_simple(arg1: string): string {
   return result;
 }
 
-function arrayFill(startIndex: number, length: number, value: string): string[] {
-  const array: string[] = [];
+function arrayFill(
+  startIndex: number,
+  length: number,
+  value: string,
+): (string | undefined)[] {
+  const array: (string | undefined)[] = [];
   for (let i = 0; i < length; i++) array[startIndex + i] = value;
   return array;
 }

@@ -268,7 +268,7 @@ function extractFileSize($: cheerio.CheerioAPI): string {
 
 function matchOne(text: string, regex: RegExp): string | null {
   const m = text.match(regex);
-  return m ? m[1] : null;
+  return m?.[1] ?? null;
 }
 
 export { parseLanzouUrl };
