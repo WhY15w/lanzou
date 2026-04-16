@@ -137,7 +137,7 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 - **日志**：Morgan
 - **跨域**：CORS
 - **速率限制**：express-rate-limit
-- **HTML 解析**：jsdom
+- **HTML 解析**：cheerio
 - **时间处理**：dayjs
 
 ## 📝 脚本命令
@@ -157,7 +157,7 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 
 ## 📄 许可证
 
-ISC
+MIT License
 
 ## 🤝 贡献
 
