@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 /** /ajaxm.php 接口返回数据结构 */
 export interface AjaxmResponse {

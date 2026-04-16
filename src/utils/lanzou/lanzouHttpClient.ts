@@ -1,19 +1,19 @@
-import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import type { LanzouClient } from '../types.js';
 import {
-  isAcwChallenge,
   calcAcwScV2FromHtml,
+  isAcwChallenge,
   upsertAcwScCookie,
-} from "./anti_acw_sc__v2.js";
-import type { LanzouClient } from "../types.js";
+} from './anti_acw_sc__v2.js';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 const UserAgent =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36";
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36';
 
 /**
  * 创建带有 acw_sc__v2 自动处理的 HTTP 客户端
  */
 function createLanzouClient(): LanzouClient {
-  let globalCookies = "";
+  let globalCookies = '';
 
   const instance = axios.create({
     withCredentials: true,
@@ -30,9 +30,9 @@ function createLanzouClient(): LanzouClient {
 
   // 响应拦截器：自动保存 Cookie
   instance.interceptors.response.use((response) => {
-    const setCookie = response.headers["set-cookie"];
+    const setCookie = response.headers['set-cookie'];
     if (setCookie && setCookie.length) {
-      globalCookies = setCookie.map((c) => c.split(";")[0]).join("; ");
+      globalCookies = setCookie.map((c) => c.split(';')[0]).join('; ');
     }
     return response;
   });
@@ -48,7 +48,7 @@ function createLanzouClient(): LanzouClient {
       return true;
     } catch (err: unknown) {
       console.error(
-        "处理 acw_sc__v2 失败:",
+        '处理 acw_sc__v2 失败:',
         err instanceof Error ? err.message : err,
       );
       return false;
@@ -60,9 +60,9 @@ function createLanzouClient(): LanzouClient {
    * @returns 是否需要重试请求
    */
   function handleAcwChallenge(data: unknown): boolean {
-    const content = Buffer.isBuffer(data) ? data.toString("utf-8") : data;
+    const content = Buffer.isBuffer(data) ? data.toString('utf-8') : data;
     if (isAcwChallenge(content)) {
-      console.log("检测到 acw_sc__v2 验证，正在处理...");
+      console.log('检测到 acw_sc__v2 验证，正在处理...');
       return applyAcwCookieFromHtml(content as string);
     }
     return false;
@@ -115,7 +115,7 @@ function createLanzouClient(): LanzouClient {
    * 重置 Cookie
    */
   function resetCookies(): void {
-    globalCookies = "";
+    globalCookies = '';
   }
 
   /**
@@ -142,38 +142,38 @@ function createLanzouClient(): LanzouClient {
  */
 function randIP(): string {
   const arr = [
-    "218",
-    "218",
-    "66",
-    "66",
-    "218",
-    "218",
-    "60",
-    "60",
-    "202",
-    "204",
-    "66",
-    "66",
-    "66",
-    "59",
-    "61",
-    "60",
-    "222",
-    "221",
-    "66",
-    "59",
-    "60",
-    "60",
-    "66",
-    "218",
-    "218",
-    "62",
-    "63",
-    "64",
-    "66",
-    "66",
-    "122",
-    "211",
+    '218',
+    '218',
+    '66',
+    '66',
+    '218',
+    '218',
+    '60',
+    '60',
+    '202',
+    '204',
+    '66',
+    '66',
+    '66',
+    '59',
+    '61',
+    '60',
+    '222',
+    '221',
+    '66',
+    '59',
+    '60',
+    '60',
+    '66',
+    '218',
+    '218',
+    '62',
+    '63',
+    '64',
+    '66',
+    '66',
+    '122',
+    '211',
   ];
   return `${arr[Math.floor(Math.random() * arr.length)]}.${Math.floor(
     Math.random() * 255,
@@ -183,15 +183,15 @@ function randIP(): string {
 /**
  * 获取请求头
  */
-function getHeaders(referer: string, host = ""): Record<string, string> {
+function getHeaders(referer: string, host = ''): Record<string, string> {
   return {
-    "User-Agent": UserAgent,
-    "X-FORWARDED-FOR": randIP(),
-    "CLIENT-IP": randIP(),
+    'User-Agent': UserAgent,
+    'X-FORWARDED-FOR': randIP(),
+    'CLIENT-IP': randIP(),
     Referer: referer,
-    Connection: "Keep-Alive",
-    Accept: "*/*",
-    "Accept-Language": "zh-cn",
+    Connection: 'Keep-Alive',
+    Accept: '*/*',
+    'Accept-Language': 'zh-cn',
     Host: host,
   };
 }
@@ -201,12 +201,12 @@ function getHeaders(referer: string, host = ""): Record<string, string> {
  */
 function getDownloadHeaders(): Record<string, string> {
   return {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
     Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Encoding": "identity",
-    "Accept-Language": "zh-CN,zh;q=0.8,en;q=0.6",
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Encoding': 'identity',
+    'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6',
   };
 }
 

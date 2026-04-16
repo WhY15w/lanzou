@@ -5,21 +5,27 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
-    "dev": "tsx app.ts",
-    "build": "tsc"
+    "dev": "tsx src/app.ts",
+    "build": "tsc",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "prettier --write src/"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "axios": "^1.15.0",
     "cheerio": "^1.2.0",
     "cors": "^2.8.6",
     "dayjs": "^1.11.20",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "oxlint": "^1.60.0",
+    "prettier": "^3.8.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
