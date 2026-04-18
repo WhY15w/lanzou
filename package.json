@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/app.js",
+    "start": "tsc && node dist/src/app.js",
     "dev": "tsx src/app.ts",
     "build": "tsc",
     "lint": "oxlint",
