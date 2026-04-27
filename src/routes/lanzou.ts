@@ -1,18 +1,18 @@
 import { parseLanzouUrl } from '../utils/lanzou/lanzouParser.js';
 import { reply } from '../utils/reply/reply.js';
-import express from 'express';
-import type { Request, Response } from 'express';
+import type { Context } from 'hono';
+import { Hono } from 'hono';
 
-const router: express.Router = express.Router();
+const router = new Hono();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (c: Context) => {
   try {
-    const url = req.query.url as string;
+    const url = c.req.query('url') as string;
     if (!url) {
-      return res.json(reply(1, '缺少url参数'));
+      return c.json(reply(1, '缺少url参数'));
     }
-    const pwd = req.query.pwd as string | undefined;
-    const type = (req.query.type as string) || 'json';
+    const pwd = c.req.query('pwd') as string | undefined;
+    const type = (c.req.query('type') as string) || 'json';
 
     const data = await parseLanzouUrl({
       url,
@@ -21,12 +21,12 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     if (data.code === 0 && data.data && 'redirect' in data.data) {
-      return res.redirect(data.data.redirect);
+      return c.redirect(data.data.redirect);
     }
-    res.json(data);
+    return c.json(data);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    res.json(reply(1, '获取信息失败', message));
+    return c.json(reply(1, '获取信息失败', message));
   }
 });
 

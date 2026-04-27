@@ -1,6 +1,6 @@
 # Lanzou URL Parser
 
-一个基于 Express 的蓝奏云链接解析服务。
+一个基于 Hono 的蓝奏云链接解析服务。
 
 ## 📋 项目简介
 
@@ -131,12 +131,12 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 
 ## 🛠️ 使用的技术栈
 
-- **框架**：Express.js
+- **框架**：Hono
 - **语言**：TypeScript
 - **HTTP 客户端**：Axios
 - **日志**：Morgan
 - **跨域**：CORS
-- **速率限制**：express-rate-limit
+- **速率限制**：hono-rate-limiter
 - **HTML 解析**：cheerio
 - **时间处理**：dayjs
 
