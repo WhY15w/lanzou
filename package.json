@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "tsc && node dist/app.js",
     "dev": "tsx src/app.ts",
@@ -30,6 +31,5 @@
     "prettier": "^3.8.3",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
-  },
-  "type": "module"
+  }
 }
