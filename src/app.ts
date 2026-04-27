@@ -1,45 +1,47 @@
 import config from './config/config.js';
 import lanzouRouter from './routes/lanzou.js';
-import cors from 'cors';
+import { serve } from '@hono/node-server';
 import dayjs from 'dayjs';
-import express from 'express';
-import rateLimit from 'express-rate-limit';
-import morgan from 'morgan';
+import { Hono } from 'hono';
+import { rateLimiter } from 'hono-rate-limiter';
+import { cors } from 'hono/cors';
 
-const app = express();
+const app = new Hono();
 
-app.set('trust proxy', 'loopback');
+app.use(cors());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(rateLimiter(config.rateLimit));
 
-morgan.token('time', () => dayjs().format('YYYY-MM-DD HH:mm:ss'));
-app.use(
-  morgan(
-    '[:time] :method :url :status :res[content-length] - :response-time ms',
-  ),
-);
-
-app.use(
-  cors({
-    allowedHeaders: '*',
-    origin: '*',
-  }),
-);
-app.use(rateLimit(config.rateLimit));
-
-// routes
-app.use('/lanzou', lanzouRouter);
-
-app.use((err: unknown, req: express.Request, res: express.Response) => {
-  console.error(
-    `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🔥 [Unhandled Error]`,
-    err,
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  console.log(
+    `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] ${c.req.method} ${url.pathname}${url.search}`,
   );
-  res.status(500).json({ error: 'Unexpected server error' });
+  await next();
 });
 
-app.listen(config.PORT, () => {
+app.route('/lanzou', lanzouRouter);
+
+app.notFound((c) => {
+  return c.json({ success: false, message: '接口不存在' }, 404);
+});
+
+app.onError((err, c) => {
+  console.error(
+    `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 未捕获错误:`,
+    err.message,
+  );
+  return c.json(
+    {
+      success: false,
+      message: '服务器内部错误',
+      data: { error: err.message },
+    },
+    500,
+  );
+});
+
+serve({ fetch: app.fetch, port: config.PORT }, () => {
   console.log(
     `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] Server running at http://127.0.0.1:${config.PORT}`,
   );
