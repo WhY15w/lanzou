@@ -48,6 +48,36 @@ pnpm run build
 pnpm start
 ```
 
+## 🐳 Docker 部署
+
+### 使用 Docker Compose（推荐）
+
+```bash
+docker compose up -d --build
+```
+
+启动后服务地址：`http://localhost:1103`
+
+停止服务：
+
+```bash
+docker compose down
+```
+
+### 仅使用 Docker
+
+构建镜像：
+
+```bash
+docker build -t lanzou-parser:latest .
+```
+
+运行容器：
+
+```bash
+docker run -d --name lanzou-parser -p 1103:1103 -e PORT=1103 lanzou-parser:latest
+```
+
 ## 📚 API 文档
 
 ### 获取文件信息
@@ -101,12 +131,18 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 
 ## ⚙️ 配置说明
 
-默认配置位于 [config/config.ts](config/config.ts)：
+默认配置位于 [src/config/config.ts](src/config/config.ts)：
 
 - **PORT**：服务监听端口（默认：1103）
 - **rateLimit**：速率限制配置
   - `windowMs`：时间窗口（15分钟）
-  - `max`：时间窗口内最大请求数（300）
+  - `limit`：时间窗口内最大请求数（100）
+
+可通过环境变量覆盖端口：
+
+```bash
+PORT=1103 pnpm start
+```
 
 ## 📁 项目结构
 

@@ -1,0 +1,13 @@
+services:
+  lanzou:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lanzou-parser:latest
+    container_name: lanzou-parser
+    environment:
+      - NODE_ENV=production
+      - PORT=1103
+    ports:
+      - "1103:1103"
+    restart: unless-stopped
