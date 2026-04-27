@@ -41,8 +41,23 @@ app.onError((err, c) => {
   );
 });
 
-serve({ fetch: app.fetch, port: config.PORT }, () => {
+const server = serve({ fetch: app.fetch, port: config.PORT }, () => {
   console.log(
     `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] Server running at http://127.0.0.1:${config.PORT}`,
   );
+});
+
+process.on('SIGINT', () => {
+  server.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  server.close((err) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    process.exit(0);
+  });
 });
