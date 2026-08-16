@@ -307,7 +307,11 @@ function extractAjaxFileInfo(
     const prefix = code.slice(Math.max(0, m.index - 2), m.index);
 
     if (prefix.includes('//')) continue;
-    result = { path: m[1], fileId: m[2] };
+
+    const [, path, fileId] = m;
+
+    if (!path || !fileId) continue;
+    result = { path, fileId };
   }
 
   return result;
