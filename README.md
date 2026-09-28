@@ -155,6 +155,12 @@ curl "http://localhost:1103/lanzou/?url=https://lanzou.com/xxx&type=redirect"
 - 若遇到频繁被限制，可根据需要调整速率限制配置
 - 某些蓝奏云链接可能需要特殊的 User-Agent 或其他请求头
 
+## 🙏 致谢
+
+- [hanximeng/LanzouAPI](https://github.com/hanximeng/LanzouAPI)（MIT）：CDN 直链解析参考了该实现——对 `/file/` 跳转地址先解开阿里云 ESA 挑战页（`var arg1` → `acw_sc__v2`），再取 302 响应里的 `Location` 作为最终直链，全程不跟随跳转。
+
+同系列实现：[lanzou-url-parser](https://github.com/WhY15w/lanzou-url-parser)（Next.js 版）、[lanzou-url-parser-nuxt](https://github.com/WhY15w/lanzou-url-parser-nuxt)（Nuxt 版）。
+
 ## 📄 许可证
 
 MIT License
